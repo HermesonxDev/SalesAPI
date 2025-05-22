@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\Customer;
+use App\Models\Product;
 
 class OrderController extends Controller {
     
@@ -25,6 +27,23 @@ class OrderController extends Controller {
         }
 
         try {
+
+            $customer = Customer::where('id', $request->customer_id)->first();
+            $product = Product::where('id', $request->product_id)->first();
+
+            if (!$customer && !$product) {
+                return response()->json([
+                    'message' => 'Error on create order.',
+                    'errors'  => 'No products or customers found.'
+                ], 404, [], JSON_UNESCAPED_SLASHES);
+            }
+
+            if ($product->quantity <= 0) {
+                return response()->json([
+                    'message' => 'Error on create order.',
+                    'errors'  => 'Product out of stock.'
+                ], 422, [], JSON_UNESCAPED_SLASHES);
+            }
 
             Order::create([
                 'customer_id'      => $request->customer_id,
