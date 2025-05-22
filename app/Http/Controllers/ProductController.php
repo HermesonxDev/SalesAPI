@@ -42,7 +42,7 @@ class ProductController extends Controller {
     }
 
 
-    public function products(Request $request) {
+    public function list(Request $request) {
         try {
             $filters = [
                 'id'     => $request->query('id'),
@@ -73,6 +73,13 @@ class ProductController extends Controller {
             }
 
             $products = $query->get();
+
+            if ($products->isEmpty()) {
+                return response()->json([
+                    'message' => 'Error on listing orders.',
+                    'errors'  => 'Orders not found.'
+                ], 404, [], JSON_UNESCAPED_SLASHES);
+            }
 
             return response()->json([
                 'limit' => $limit,

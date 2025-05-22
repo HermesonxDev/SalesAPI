@@ -43,7 +43,7 @@ class CustomerController extends Controller {
         }
     }
 
-    public function customers(Request $request) {
+    public function list(Request $request) {
         try {
             $filters = [
                 'id'         => $request->query('id'),
@@ -78,6 +78,13 @@ class CustomerController extends Controller {
             }
 
             $customers = $query->get();
+
+            if ($customers->isEmpty()) {
+                return response()->json([
+                    'message' => 'Error on listing customers.',
+                    'errors'  => 'Customers not found.'
+                ], 404, [], JSON_UNESCAPED_SLASHES);
+            }
 
             return response()->json([
                 'limit' => $limit,

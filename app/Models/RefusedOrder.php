@@ -14,6 +14,7 @@ class RefusedOrder extends Model {
         'customer_id',
         'order_id',
         'reason',
+        'canceled',
         'deleted'
     ];
 

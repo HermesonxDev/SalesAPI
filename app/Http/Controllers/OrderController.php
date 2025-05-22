@@ -46,7 +46,7 @@ class OrderController extends Controller {
         }
     }
 
-    public function orders(Request $request) {
+    public function list(Request $request) {
         try {
             $filters = [
                 'id'          => $request->query('id'),

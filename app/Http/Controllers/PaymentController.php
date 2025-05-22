@@ -44,7 +44,7 @@ class PaymentController extends Controller {
         }
     }
 
-    public function payments(Request $request) {
+    public function list(Request $request) {
         try {
             $filters = [
                 'id'          => $request->query('id'),
@@ -81,6 +81,13 @@ class PaymentController extends Controller {
             }
 
             $payments = $query->get();
+
+            if ($payments->isEmpty()) {
+                return response()->json([
+                    'message' => 'Error on listing payments.',
+                    'errors'  => 'Payments not found.'
+                ], 404, [], JSON_UNESCAPED_SLASHES);
+            }
 
             return response()->json([
                 'limit' => $limit,

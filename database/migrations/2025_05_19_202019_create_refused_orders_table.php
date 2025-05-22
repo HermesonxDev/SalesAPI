@@ -23,6 +23,7 @@ return new class extends Migration
                   ->onDelete('cascade');
 
             $table->string('reason');
+            $table->boolean('canceled')->default(false);
             $table->boolean('deleted')->default(false);
             $table->timestamps();
         });
