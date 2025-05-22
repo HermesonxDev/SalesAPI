@@ -11,6 +11,7 @@ class ProductController extends Controller {
     public function create(Request $request) {
         $validator = Validator::make($request->all(), [
             'name'        => 'required|string',
+            'value'       => 'required|numeric',
             'description' => 'nullable|string',
             'quantity'    => 'nullable|numeric',
         ]);
@@ -25,6 +26,7 @@ class ProductController extends Controller {
         try {
             Product::create([
                 'name'        => $request->name,
+                'value'       => $request->value,
                 'description' => $request->description,
                 'quantity'    => $request->quantity
             ]);
@@ -37,7 +39,7 @@ class ProductController extends Controller {
             return response()->json([
                 'message' => 'Error on product creation.',
                 'errors'  => $e->getMessage()
-            ], 500, [], JSON_UNESCAPED_SLASHES)
+            ], 500, [], JSON_UNESCAPED_SLASHES);
         }
     }
 
@@ -99,6 +101,7 @@ class ProductController extends Controller {
     public function edit(Request $request, int $id) {
         $validator = Validator::make($request->all(), [
             'name'        => 'nullable|string',
+            'value'       => 'nullable|numeric',
             'description' => 'nullable|string',
             'quantity'    => 'nullable|numeric',
             'active'      => 'nullable|boolean'
@@ -122,6 +125,7 @@ class ProductController extends Controller {
             }
 
             $product->name = $request->name;
+            $product->value = $request->value;
             $product->description = $request->description;
             $product->quantity = $request->quantity;
             $product->active = filter_var($request->active, FILTER_VALIDATE_BOOLEAN);

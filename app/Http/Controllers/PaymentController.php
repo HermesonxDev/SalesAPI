@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Validator;
-use Ilumminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use App\Models\Payment;
 
@@ -11,7 +11,7 @@ class PaymentController extends Controller {
     public function create(Request $request) {
         $validator = Validator::make($request->all(), [
             'customer_id' => 'required|integer',
-            'order_id'    => 'requried|integer',
+            'order_id'    => 'required|integer',
             'description' => 'nullable|string',
             'value'       => 'required|numeric',
         ]);
@@ -58,7 +58,7 @@ class PaymentController extends Controller {
 
             $query = Payment::query()->where('deleted', '<>', true);
 
-            foreach ($filter as $filter => $value) {
+            foreach ($filters as $filter => $value) {
                 if(!is_null($value)) {
                     switch ($filter) {
                         case 'id':
@@ -93,7 +93,7 @@ class PaymentController extends Controller {
                 'limit' => $filters['limit'],
                 'total' => count($payments),
                 'data'  => $payments
-            ], 200, [], JSON_UNESCAPED_SLASHES)
+            ], 200, [], JSON_UNESCAPED_SLASHES);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -166,7 +166,7 @@ class PaymentController extends Controller {
             $payment->save();
 
             return response()->json([
-                'message' => 'Payment deleted has successfully!'.
+                'message' => 'Payment deleted has successfully!'
             ], 200, [], JSON_UNESCAPED_SLASHES);
 
         } catch (\Exception $e) {

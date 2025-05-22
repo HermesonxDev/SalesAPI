@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('description')->nullable();
+            $table->decimal('value', 10, 2);
             $table->decimal('quantity', 10, 2)->default(0);
             $table->boolean('active')->default(true);
             $table->boolean('deleted')->default(false);

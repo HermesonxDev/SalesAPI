@@ -12,6 +12,7 @@ class CustomerController extends Controller {
         $validator = Validator::make($request->all(), [
             'first_name' => 'required|string',
             'last_name'  => 'required|string',
+            'telephone'  => 'nullable|string',
             'cpf_cnpj'   => 'required|string',
             'address'    => 'nullable|string'
         ]);
@@ -27,13 +28,14 @@ class CustomerController extends Controller {
             Customer::create([
                 'first_name' => $request->first_name,
                 'last_name'  => $request->last_name,
+                'telephone'  => $request->telephone,
                 'cpf_cnpj'   => $request->cpf_cnpj,
                 'address'    => $request->address
             ]);
 
             return response()->json([
                 'message' => 'Customer created has successfully!'
-            ]);
+            ], 200, [], JSON_UNESCAPED_SLASHES);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -90,7 +92,7 @@ class CustomerController extends Controller {
                 'limit' => $filters['limit'],
                 'total' => count($customers),
                 'data'  => $customers
-            ], 404, [], JSON_UNESCAPED_SLASHES);
+            ], 200, [], JSON_UNESCAPED_SLASHES);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -104,6 +106,7 @@ class CustomerController extends Controller {
         $validator = Validator::make($request->all(), [
             'first_name' => 'nullable|string',
             'last_name'  => 'nullable|string',
+            'telephone'  => 'nullable|string',
             'cpf_cnpj'   => 'nullable|string',
             'address'    => 'nullable|string',
             'active'     => 'nullable|boolean'
@@ -128,6 +131,7 @@ class CustomerController extends Controller {
 
             $customer->first_name = $request->first_name;
             $customer->last_name = $request->last_name;
+            $customer->telephone = $request->telephone;
             $customer->cpf_cnpj = $request->cpf_cnpj;
             $customer->address = $request->address;
             $customer->active = filter_var($request->active, FILTER_VALIDATE_BOOLEAN);

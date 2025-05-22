@@ -18,7 +18,7 @@ class RefusedOrderController extends Controller {
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Error on create refused order.',
-                'errors'  => $validator->errors();
+                'errors'  => $validator->errors()
             ], 422, [], JSON_UNESCAPED_SLASHES);
         }
 

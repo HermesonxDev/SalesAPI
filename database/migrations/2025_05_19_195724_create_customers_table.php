@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('cpf_cnpj', 14);
+            $table->string('telephone')->nullable();
+            $table->string('cpf_cnpj');
             $table->string('address')->nullable();
             $table->boolean('active')->default(true);
             $table->boolean('deleted')->default(false);

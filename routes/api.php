@@ -2,11 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Models\CustomerController;
-use App\Models\OrderController;
-use App\Models\PaymentController;
-use App\Models\ProductController;
-use App\Models\RefusedOrderController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RefusedOrderController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -20,7 +20,7 @@ Route::prefix('/create')->group(function () {
     Route::post('/refused-order', [RefusedOrderController::class, 'create']);
 });
 
-Route::pefix('/list')->group(function () {
+Route::prefix('/list')->group(function () {
     Route::get('/customer', [CustomerController::class, 'list']);
     Route::get('/order', [OrderController::class, 'list']);
     Route::get('/payment', [PaymentController::class, 'list']);
