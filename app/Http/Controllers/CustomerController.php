@@ -52,7 +52,7 @@ class CustomerController extends Controller {
             $active = filter_var($request->query('active'), FILTER_VALIDATE_BOOLEAN);
             $limit = $request->query('limit', null);
 
-            $customers = Customer::query();
+            $query = Customer::query();
 
             if ($id) {
                 $query->where('id', $id);
@@ -123,7 +123,7 @@ class CustomerController extends Controller {
                 $query->limit($limit);
             }
 
-            $customers->where('deleted', '<>', true)->get();
+            $customers = $query->where('deleted', '<>', true)->get();
 
             return response()->json([
                 'limit' => $limit,
@@ -156,7 +156,7 @@ class CustomerController extends Controller {
         }
 
         try {
-            $customer = Customer::where('id', $id)->first();
+            $customer = Customer::where('id', $id)->where('deleted', '<>', true)->first();
 
             if (!$customer) {
                 return response()->json([
@@ -186,7 +186,7 @@ class CustomerController extends Controller {
 
     public function delete(Request $request, int $id) {
         try {
-            $customer = Customer::where('id', $id)->first();
+            $customer = Customer::where('id', $id)->where('deleted', '<>', true)->first();
 
             if (!$customer) {
                 return response()->json([

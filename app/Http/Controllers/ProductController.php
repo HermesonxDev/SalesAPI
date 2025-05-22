@@ -127,7 +127,7 @@ class ProductController extends Controller {
         }
 
         try {
-            $product = Product::where('id', $id)->first();
+            $product = Product::where('id', $id)->where('deleted', '<>', true)->first();
 
             if (!$product) {
                 return response()->json([
@@ -157,7 +157,7 @@ class ProductController extends Controller {
 
     public function delete(Request $request, int $id) {
         try {
-            $product = Product::where('id', $id)->first();
+            $product = Product::where('id', $id)->where('deleted', '<>', true)->first();
 
             if (!$product) {
                 return response()->json([
