@@ -44,57 +44,35 @@ class ProductController extends Controller {
 
     public function products(Request $request) {
         try {
-            $id = (int) $request->query('id');
-            $name = $request->query('name');
-            $active = filter_var($request->query('active'), FILTER_VALIDATE_BOOLEAN);
-            $limit = $request->query('limit', null);
+            $filters = [
+                'id'     => $request->query('id'),
+                'name'   => $request->query('name'),
+                'active' => $request->query('active'),
+                'limit'  => $request->query('limit')
+            ];
 
-            $query = Product::query();
+            $query = Product::query()->where('deleted', '<>', true);
 
-            if ($id) {
-                $query->where('id', $id);
-
-                $result = $query->where('deleted', '<>', true)->first();
-
-                if (!$result) {
-                    return response()->json([
-                        'message' => 'Error on listing products.',
-                        'errors'  => 'Product not found.'
-                    ], 404, [], JSON_UNESCAPED_SLASHES);
+            foreach ($filters as $filter => $value) {
+                if (!is_null($value)) {
+                    switch ($filter) {
+                        case 'id':
+                            $query->where($filter, (int) $value);
+                            break;
+                        case 'name':
+                            $query->where($filter, 'like', "%{$value}%");
+                            break;
+                        case 'active':
+                            $query->where($filter, filter_var($value, FILTER_VALIDATE_BOOLEAN));
+                            break;
+                        case 'limit':
+                            $query->limit((int) $value);
+                            break;
+                    }
                 }
             }
 
-            if ($name) {
-                $query->where('name', 'like', "%{$name}%");
-
-                $result = $query->where('deleted', '<>', true)->get();
-
-                if ($result->isEmpty()) {
-                    return response()->json([
-                        'message' => 'Error on listing products.',
-                        'errors'  => 'Products not found.'
-                    ], 404, [], JSON_UNESCAPED_SLASHES);
-                }
-            }
-
-            if ($active) {
-                $query->where('active', $active);
-
-                $result = $query->where('deleted', '<>', true)->get();
-
-                if ($result->isEmpty()) {
-                    return response()->json([
-                        'message' => 'Error on listing products.',
-                        'errors'  => 'Products not found.'
-                    ], 404, [], JSON_UNESCAPED_SLASHES);
-                }
-            }
-
-            if (!is_null($limit)) {
-                $query->limit($limit);
-            }
-
-            $products = $query->where('deleted', '<>', true)->get();
+            $products = $query->get();
 
             return response()->json([
                 'limit' => $limit,

@@ -45,85 +45,39 @@ class CustomerController extends Controller {
 
     public function customers(Request $request) {
         try {
-            $id = (int) $request->query('id');
-            $first_name = $request->query('first_name');
-            $last_name = $request->query('last_name');
-            $cpf_cnpj = $request->query('cpf_cnpj');
-            $active = filter_var($request->query('active'), FILTER_VALIDATE_BOOLEAN);
-            $limit = $request->query('limit', null);
+            $filters = [
+                'id'         => $request->query('id'),
+                'first_name' => $request->query('first_name'),
+                'last_name'  => $request->query('last_name'),
+                'cpf_cnpj'   => $request->query('cpf_cnpj'),
+                'active'     => $request->query('active'),
+                'limit'      => $request->query('limit')
+            ];
 
-            $query = Customer::query();
+            $query = Customer::query()->where('deleted', '<>', true);
 
-            if ($id) {
-                $query->where('id', $id);
-
-                $result = $query->where('deleted', '<>', true)->first();
-
-                if (!$result) {
-                    return response()->json([
-                        'message' => 'Error on listing customers.',
-                        'errors'  => 'Customer not found.'
-                    ], 404, [], JSON_UNESCAPED_SLASHES);
+            foreach ($filters as $filter => $value) {
+                if (!is_null($value)) {
+                    switch ($filter) {
+                        case 'id':
+                            $query->where($filter, (int) $value);
+                            break;
+                        case 'first_name':
+                        case 'last_name':
+                        case 'cpf_cnpj':
+                            $query->where($filter, 'like', "%{$value}%");
+                            break;
+                        case 'active':
+                            $query->where($filter, filter_var($value, FILTER_VALIDATE_BOOLEAN));
+                            break;
+                        case 'limit':
+                            $query->limit((int) $value);
+                            break;
+                    }
                 }
             }
 
-            if ($first_name) {
-                $query->where('first_name', 'like', "%{$first_name}%");
-
-                $result = $query->where('deleted', '<>', true)->get();
-
-                if ($result->isEmpty()) {
-                    return response()->json([
-                        'message' => 'Error on listing customers.',
-                        'errors'  => 'Customers not found.'
-                    ], 404, [], JSON_UNESCAPED_SLASHES);
-                }
-            }
-
-            if ($last_name) {
-                $query->where('last_name', 'like', "%{$last_name}%");
-
-                $result = $query->where('deleted', '<>', true)->get();
-
-                if ($result->isEmpty()) {
-                    return response()->json([
-                        'message' => 'Error on listing customers.',
-                        'errors'  => 'Customers not found.'
-                    ], 404, [], JSON_UNESCAPED_SLASHES);
-                }
-            }
-
-            if ($cpf_cnpj) {
-                $query->where('cpf_cnpj', 'like', "%{$cpf_cnpj}%");
-
-                $result = $query->where('deleted', '<>', true)->get();
-
-                if ($result->isEmpty()) {
-                    return response()->json([
-                        'message' => 'Error on listing customers.',
-                        'errors'  => 'Customers not found.'
-                    ], 404, [], JSON_UNESCAPED_SLASHES)
-                }
-            }
-
-            if ($active) {
-                $query->where('active', $active);
-
-                $result = $query->where('deleted', '<>', true)->get();
-
-                if ($result->isEmpty()) {
-                    return response()->json([
-                        'message' => 'Error on listing customers.',
-                        'errors'  => 'Customers not found.'
-                    ], 404, [], JSON_UNESCAPED_SLASHES);
-                }
-            }
-
-            if (!is_null($limit)) {
-                $query->limit($limit);
-            }
-
-            $customers = $query->where('deleted', '<>', true)->get();
+            $customers = $query->get();
 
             return response()->json([
                 'limit' => $limit,

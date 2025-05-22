@@ -48,103 +48,52 @@ class OrderController extends Controller {
 
     public function orders(Request $request) {
         try {
-            $id = (int) $request->query('id');
-            $customer_id = (int) $request->query('customer_id');
-            $product_id = (int) $request->query('product_id');
-            $value = (float) $request->query('value'); 
-            $finished = filter_var($request->query('finished'), FILTER_VALIDATE_BOOLEAN);
-            $canceled = filter_var($request->query('canceled'), FILTER_VALIDATE_BOOLEAN);
-            $limit = $request->query('limit', null);
+            $filters = [
+                'id'          => $request->query('id'),
+                'customer_id' => $request->query('customer_id'),
+                'product_id'  => $request->query('product_id'),
+                'value'       => $request->query('value'),
+                'finished'    => $request->query('finished'),
+                'canceled'    => $request->query('canceled'),
+                'limit'       => $request->query('limit')
+            ];
 
-            $query = Order::query();
+            $query = Order::query()->where('deleted', '<>', true);
 
-            if ($id) {
-                $query->where('id', $id);
-
-                $result = $query->where('deleted', '<>', true)->first();
-
-                if (!$result) {
-                    return response()->json([
-                        'message' => 'Error on listing orders.',
-                        'errors'  => 'Order not found.'
-                    ], 404, [], JSON_UNESCAPED_SLASHES);
+            foreach ($filters as $filter => $value) {
+                if (!is_null($value)) {
+                    switch ($filter) {
+                        case 'id':
+                        case 'customer_id':
+                        case 'product_id':
+                            $query->where($filter, (int) $value);
+                            break;
+                        case 'value':
+                            $query->where($filter, (float) $value);
+                            break;
+                        case 'finished':
+                        case 'canceled':
+                            $query->where($filter, filter_var($value, FILTER_VALIDATE_BOOLEAN));
+                            break;
+                        case 'limit':
+                            $query->limit((int) $value);
+                            break;
+                    }
                 }
             }
 
-            if ($customer_id) {
-                $query->where('customer_id', $customer_id);
+            $orders = $query->get();
 
-                $result = $query->where('deleted', '<>', true)->get();
-
-                if ($result->isEmpty()) {
-                    return response()->json([
-                        'message' => 'Error on listing orders.',
-                        'errors'  => 'Orders not found.'
-                    ], 404, [], JSON_UNESCAPED_SLASHES);
-                }
+            if ($orders->isEmpty()) {
+                return response()->json([
+                    'message' => 'Error on listing orders.',
+                    'errors'  => 'Orders not found.'
+                ], 404, [], JSON_UNESCAPED_SLASHES);
             }
-
-            if ($product_id) {
-                $query->where('product_id', $product_id);
-
-                $result = $query->where('deleted', '<>', true)->get();
-
-                if ($result->isEmpty()) {
-                    return response()->json([
-                        'message' => 'Error on listing orders.',
-                        'errors'  => 'Orders not found.'
-                    ], 404, [], JSON_UNESCAPED_SLASHES);
-                }
-            }
-
-            if ($value) {
-                $query->where('value', $value);
-
-                $result = $query->where('deleted', '<>', true)->get();
-
-                if ($result->isEmpty()) {
-                    return response()->json([
-                        'message' => 'Error on listing orders.',
-                        'errors'  => 'Orders not found.'
-                    ], 404, [], JSON_UNESCAPED_SLASHES);
-                }
-            }
-
-            if ($finished) {
-                $query->where('finished', $finished);
-
-                $result = $query->where('deleted', '<>', true)->get();
-
-                if ($result->isEmpty()) {
-                    return response()->json([
-                        'message' => 'Error on listing orders.',
-                        'errors'  => 'Orders not found.'
-                    ], 404, [], JSON_UNESCAPED_SLASHES);
-                }
-            }
-
-            if ($canceled) {
-                $query->where('canceled', $canceled);
-
-                $result = $query->where('deleted', '<>', true)->get();
-
-                if ($result->isEmpty()) {
-                    return response()->json([
-                        'message' => 'Error on listing orders.',
-                        'errors'  => 'Orders not found.'
-                    ], 404, [], JSON_UNESCAPED_SLASHES);
-                }
-            }
-
-            if (!is_null($limit)) {
-                $query->limit($limit);
-            }
-
-            $orders = $query->where('deleted', '<>', true)->get();
 
             return response()->json([
                 'limit' => $limit,
-                'total' => count($orders),
+                'total' => $orders->count(),
                 'data'  => $orders
             ], 200, [], JSON_UNESCAPED_SLASHES);
 
@@ -155,6 +104,7 @@ class OrderController extends Controller {
             ], 500, [], JSON_UNESCAPED_SLASHES);
         }
     }
+
 
     public function edit(Request $request, int $id) {
         $validator = Validator::make($request->all(), [
