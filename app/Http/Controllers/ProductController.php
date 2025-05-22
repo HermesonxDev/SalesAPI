@@ -82,7 +82,7 @@ class ProductController extends Controller {
             }
 
             return response()->json([
-                'limit' => $limit,
+                'limit' => $filters['limit'],
                 'total' => count($products),
                 'data'  => $products
             ], 200, [], JSON_UNESCAPED_SLASHES);

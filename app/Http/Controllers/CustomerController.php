@@ -87,7 +87,7 @@ class CustomerController extends Controller {
             }
 
             return response()->json([
-                'limit' => $limit,
+                'limit' => $filters['limit'],
                 'total' => count($customers),
                 'data'  => $customers
             ], 404, [], JSON_UNESCAPED_SLASHES);

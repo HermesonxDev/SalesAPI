@@ -90,7 +90,7 @@ class PaymentController extends Controller {
             }
 
             return response()->json([
-                'limit' => $limit,
+                'limit' => $filters['limit'],
                 'total' => count($payments),
                 'data'  => $payments
             ], 200, [], JSON_UNESCAPED_SLASHES)

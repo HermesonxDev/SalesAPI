@@ -43,9 +43,58 @@ class RefusedOrderController extends Controller {
     }
 
     public function list(Request $request) {
+        try {
+            $filters = [
+                'id'          => $request->query('id'),
+                'customer_id' => $request->query('customer_id'),
+                'order_id'    => $request->query('order_id'),
+                'canceled'    => $request->query('canceled'),
+                'limit'       => $request->query('limit')
+            ];
 
+            $query = RefusedOrder::query()->where('deleted', '<>', true);
+
+            foreach ($filters as $filter => $value) {
+                if (!is_null($value)) {
+                    switch ($filter) {
+                        case 'id':
+                        case 'customer_id':
+                        case 'order_id':
+                            $query->where($filter, (int) $value);
+                            break;
+                        case 'canceled':
+                            $query->where($filter, filter_var($value, FILTER_VALIDATE_BOOLEAN));
+                            break;
+                        case 'limit':
+                            $query->limit((int) $value);
+                            break;
+                    }
+                }
+            }
+
+            $refused_orders = $query->get();
+
+            if ($refused_orders->isEmpty()) {
+                return response()->json([
+                    'message' => 'Error on listing refused orders.',
+                    'errors'  => 'Refused orders not found.'
+                ], 404, [], JSON_UNESCAPED_SLASHES);
+            }
+
+            return response()->json([
+                'limit' => $filters['limit'],
+                'total' => count($refused_orders),
+                'data'  => $refused_orders
+            ], 200, [], JSON_UNESCAPED_SLASHES);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error on listing refused orders.',
+                'errors'  => $e->getMessage()
+            ], 500, [], JSON_UNESCAPED_SLASHES);
+        }
     }
-    
+
     public function edit(Request $request, int $id) {
         $validator = Validator::make($request->all(), [
             'customer_id' => 'nullable|integer',

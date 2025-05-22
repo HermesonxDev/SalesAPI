@@ -92,7 +92,7 @@ class OrderController extends Controller {
             }
 
             return response()->json([
-                'limit' => $limit,
+                'limit' => $filters['limit'],
                 'total' => $orders->count(),
                 'data'  => $orders
             ], 200, [], JSON_UNESCAPED_SLASHES);
