@@ -139,7 +139,7 @@ class CustomerController extends Controller {
 
             return response()->json([
                 'message' => 'Customer created has successfully!'
-            ], 200, [], JOSN_UNESCAPED_SLASHES);
+            ], 200, [], JSON_UNESCAPED_SLASHES);
 
         } catch (\Exception $e) {
             return response()->json([
