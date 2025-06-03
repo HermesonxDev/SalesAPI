@@ -138,7 +138,7 @@ class CustomerController extends Controller {
             $customer->save();
 
             return response()->json([
-                'message' => 'Customer created has successfully!'
+                'message' => 'Customer edited has successfully!'
             ], 200, [], JSON_UNESCAPED_SLASHES);
 
         } catch (\Exception $e) {
