@@ -31,7 +31,7 @@ class OrderController extends Controller {
             $customer = Customer::where('id', $request->customer_id)->first();
             $product = Product::where('id', $request->product_id)->first();
 
-            if (!$customer && !$product) {
+            if (!$customer || !$product) {
                 return response()->json([
                     'message' => 'Error on create order.',
                     'errors'  => 'No products or customers found.'
